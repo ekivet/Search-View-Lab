@@ -1,18 +1,11 @@
 package ly.generalassemb.drewmahrt.shoppinglistwithsearch;
 
-import android.content.ContentValues;
+
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
-import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 
 public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
@@ -40,6 +33,15 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
                     COL_ITEM_PRICE + " REAL, " +
                     COL_ITEM_TYPE + " TEXT )";
 
+    //make ShoppingSQLiteOpenHelper Into Singleton So It Can Be Used By SearchResultActivity
+    private static ShoppingSQLiteOpenHelper instance;
+
+    public static ShoppingSQLiteOpenHelper getInstance(Context context){
+        if(instance == null){
+            instance = new ShoppingSQLiteOpenHelper(context);
+        }
+        return instance;
+    }
 
     public ShoppingSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,5 +58,20 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
         this.onCreate(db);
     }
 
+    // create cursor for searchview
+    public Cursor searchList(String query){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(SHOPPING_LIST_TABLE_NAME, SHOPPING_COLUMNS,
+                COL_ITEM_NAME+ " LIKE ?", new String[]{query+"%"},null,null,null);
+        return cursor;
+    }
+
+    //getter for new cursor
+    public Cursor getList(){
+        SQLiteDatabase db = getReadableDatabase();
+        return db.query(SHOPPING_LIST_TABLE_NAME,null,null,null,null,null,null);
+    }
 
 }
